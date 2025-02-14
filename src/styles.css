@@ -1,0 +1,129 @@
+/* 全体のスタイル */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f8f8;
+    color: #333;
+}
+
+/* ナビゲーションバー */
+.navbar {
+    background-color: #2f3542;
+    padding: 10px;
+    text-align: center;
+}
+
+.navbar nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+.navbar nav ul li {
+    display: inline-block;
+    margin-right: 20px;
+}
+
+.navbar nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.navbar nav ul li a:hover {
+    color: #4caf50;
+}
+
+/* ページタイトル */
+h2, h3 {
+    text-align: center;
+    color: #2f3542;
+}
+
+/* 入力フォーム */
+.input-page form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px; /* フォーム項目間のスペースを広げる */
+    max-width: 800px;  /* フォームの最大幅を広げる */
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.input-page label {
+    font-size: 16px;
+    color: #333;
+    display: block;
+    margin-bottom: 10px;  /* ラベルの下に余白を追加 */
+}
+
+.input-page input {
+    padding: 12px;  /* 入力フィールドのパディングを広げる */
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;  /* 入力フィールドを最大幅に合わせる */
+    box-sizing: border-box; /* 幅をパディングも含めて調整 */
+}
+
+.input-page button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #2f3542;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;  /* ボタンをフォーム全体の幅に合わせる */
+    margin-top: 20px;
+}
+
+.input-page button:hover {
+    background-color: #4caf50;
+}
+
+/* テーブルスタイル */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 10px;
+    text-align: center;
+}
+
+th {
+    background-color: #2f3542;
+    color: white;
+}
+
+/* グラフエリア */
+.chart-container {
+    margin-top: 40px;
+    text-align: center;
+}
+
+/* 累計成績 */
+.total-stats p {
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+/* レスポンシブデザイン */
+@media screen and (max-width: 768px) {
+    .input-page form {
+        grid-template-columns: 1fr; /* スマホでは1列にする */
+    }
+
+    .input-page input, .input-page button {
+        width: 100%; /* 幅を100%にしてボタンも広げる */
+    }
+}
