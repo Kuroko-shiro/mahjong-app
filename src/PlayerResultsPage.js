@@ -179,7 +179,7 @@ function PlayerResultsPage() {
                                 y: {
                                     // 順位の縦軸を逆順に設定（1位が高い位置に来る）
                                     reverse: true, 
-                                    beginAtZero: true,
+                                    beginAtZero: false,
                                     ticks: {
                                         stepSize: 1, // 1ステップごとに順位が増える
                                     },
