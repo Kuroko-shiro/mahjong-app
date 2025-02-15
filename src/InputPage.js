@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import './styles.css'; 
 import { db } from "./firebase";
-import { collection, getDocs, addDoc } from "firebase/firestore";
+import { collection, getDocs, doc, setDoc } from "firebase/firestore";
 
 function InputPage() {
     const [date, setDate] = useState("");
@@ -12,8 +12,12 @@ function InputPage() {
 
     // 🔹 その日の対局回数を取得
     const getGameCount = async (formattedDate) => {
-        const querySnapshot = await getDocs(collection(db, formattedDate));
-        return querySnapshot.size + 1;  // 既存のゲーム数 + 1
+        const querySnapshot = await getDocs(collection(db, "games"));
+        const existingGames = querySnapshot.docs
+            .map(doc => doc.id)
+            .filter(id => id.startsWith(formattedDate)); // 同じ日付のゲームをカウント
+
+        return existingGames.length + 1;  // 既存のゲーム数 + 1
     };
 
     // 🔹 フォーム送信時の処理
@@ -25,9 +29,9 @@ function InputPage() {
             return;
         }
 
-        // 🔹 その日の対局回数を取得し、コレクション名を決定
+        // 🔹 その日の対局回数を取得し、ドキュメントIDを決定
         const gameNumber = await getGameCount(date);
-        const collectionName = `${date}-${gameNumber}`; // 例: 2025-02-17-1
+        const documentId = `${date}-${gameNumber}`; // 例: 2025-02-17-1
 
         const scoreData = {};
         const riichiData = {};
@@ -40,7 +44,8 @@ function InputPage() {
         }
 
         try {
-            await addDoc(collection(db, collectionName), {
+            await setDoc(doc(db, "games", documentId), { // 🔹 `games` 内に `YYYY-MM-DD-回数` のIDで保存
+                date,
                 players,
                 scores: scoreData,
                 riichi_count: riichiData,
@@ -48,7 +53,7 @@ function InputPage() {
                 gameNumber: gameNumber,
                 timestamp: new Date()
             });
-            alert(`成績を記録しました！ (${collectionName})`);
+            alert(`成績を記録しました！ (${documentId})`);
         } catch (error) {
             console.error("データ保存エラー:", error);
         }
