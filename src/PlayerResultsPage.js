@@ -96,11 +96,14 @@ function PlayerResultsPage() {
                 setRankHistory(halfGameRankings);
 
                 // プレイヤーごとの累積成績
-                const cumulativeStats = { score: 0, riichi: 0, houjuu: 0 };
-                playerResults.forEach(result => {
+                const cumulativeStats = { score: 0, riichi: 0, houjuu: 0 , firstPlace:0, nonFourthPlace:0, totalGames: playerResults.length};
+                playerResults.forEach((result,index) => {
                     cumulativeStats.score += result.score;
                     cumulativeStats.riichi += result.riichi;
                     cumulativeStats.houjuu += result.houjuu;
+                    const playerRank = halfGameRankings[index]?.find(player => player.player === playerName)?.rank;
+                    if (playerRank === 1) cumulativeStats.firstPlace += 1;
+                    if (playerRank !== 4) cumulativeStats.nonFourthPlace += 1;
                 });
 
                 setPlayerData(playerResults);
@@ -167,6 +170,16 @@ function PlayerResultsPage() {
                                     <td>累積放銃回数</td>
                                     <td>{totalStats.houjuu}</td>
                                 </tr>
+                                <tr>
+                                    <td>累計対局回数</td>
+                                    <td>{totalStats.totalGames}</td>
+                                </tr>
+                                <tr><td>トップ率</td>
+                                    <td>{(totalStats.firstPlace / totalStats.totalGames * 100).toFixed(2)}%</td>
+                                </tr>
+                                <tr><td>ラス回避率</td>
+                                    <td>{(totalStats.nonFourthPlace / totalStats.totalGames * 100).toFixed(2)}%</td>
+                                    </tr>
                             </tbody>
                         </table>
                     </div>
@@ -181,7 +194,9 @@ function PlayerResultsPage() {
                                     reverse: true, 
                                     beginAtZero: false,
                                     ticks: {
-                                        stepSize: 1, // 1ステップごとに順位が増える
+                                        min: 1,
+                                        max: 4,
+                                        stepSize: 1 // 1ステップごとに順位が増える
                                     },
                                     title: {
                                         display: true,
