@@ -17,6 +17,7 @@ function App() {
                         <li><Link to="/all-results">全体成績</Link></li>
                         <li><Link to="/player">個人成績</Link></li>
                         <li><Link to="/daily-results">日別成績</Link></li> {/* 新しいリンク追加 */}
+                        <li><Link to="/ranking">各ランキング</Link></li>
                     </ul>
                 </nav>
             </div>
@@ -28,6 +29,7 @@ function App() {
                 <Route path="/player" element={<PlayerResultsPage />} />
                 <Route path="/player/:playerName" element={<PlayerResultsPage />} /> {/* 個人ページのパラメータ追加 */}
                 <Route path="/daily-results" element={<DailyResultsPage />} /> {/* 日別成績ページ */}
+                
             </Routes>
         </Router>
     );

@@ -28,73 +28,105 @@ function AllResultsPage() {
                 id: doc.id,
                 ...doc.data()
             }));
-
+    
             data.sort((a, b) => new Date(a.date) - new Date(b.date));
-
+    
             const stats = {};
             const cumulativeData = {};
-
+            const allPlayers = new Set();
+            const firstAppearance = {}; // 各プレイヤーの初登場日を記録
+    
+            // すべてのプレイヤーを記録
             data.forEach(record => {
-                const date = record.date;
-                if (!cumulativeData[date]) cumulativeData[date] = {};
-                
                 record.players.forEach(player => {
+                    allPlayers.add(player);
                     if (!stats[player]) {
                         stats[player] = { score: 0, riichi: 0, houjuu: 0, games: 0 };
                     }
-                    if (!cumulativeData[date][player]) {
-                        cumulativeData[date][player] = stats[player].score;
+                    if (!firstAppearance[player]) {
+                        firstAppearance[player] = record.date; // 初めてスコアが記録された日
                     }
-                    
+                });
+            });
+    
+            // 累積スコアの計算
+            data.forEach(record => {
+                const date = record.date;
+                if (!cumulativeData[date]) cumulativeData[date] = {};
+    
+                allPlayers.forEach(player => {
+                    // まだ登場していないプレイヤーは記録しない
+                    if (new Date(date) < new Date(firstAppearance[player])) {
+                        cumulativeData[date][player] = null; // グラフに表示しない
+                    } else {
+                        // 前回のスコアを引き継ぐ
+                        cumulativeData[date][player] = cumulativeData[date][player] || (stats[player]?.score || 0);
+                    }
+                });
+    
+                record.players.forEach(player => {
                     stats[player].score += record.scores[player] || 0;
                     stats[player].riichi += record.riichi_count[player] || 0;
                     stats[player].houjuu += record.houjuu_count[player] || 0;
                     stats[player].games += 1;
-
+    
                     cumulativeData[date][player] = stats[player].score;
                 });
             });
+    
             setPlayerStats(stats);
-
-            // 各日付ごとに順位を計算
+    
+            // ✨ 全プレイヤーの順位を計算（初登場前は除外）
             const dates = Object.keys(cumulativeData).sort();
             const rankHistory = dates.map(date => {
-                const players = Object.keys(cumulativeData[date]);
-                const sortedPlayers = players.sort((a, b) => cumulativeData[date][b] - cumulativeData[date][a]);
-                return sortedPlayers.map((player, index) => ({
-                    player,
+                // その時点で初登場しているプレイヤーのみを対象
+                const rankedPlayers = Array.from(allPlayers)
+                    .filter(player => new Date(date) >= new Date(firstAppearance[player])) // 初登場日以降のみ
+                    .map(player => ({
+                        player,
+                        score: cumulativeData[date][player] || 0, // スコアが無い場合は0
+                        date
+                    }));
+    
+                rankedPlayers.sort((a, b) => b.score - a.score);
+    
+                return rankedPlayers.map((player, index) => ({
+                    player: player.player,
                     rank: index + 1,
                     date
                 }));
             });
-
+    
             setCumulativeScores(rankHistory);
-
+    
             if (rankHistory.length === 0) return;
-
-            // グラフ用データの作成
-            const playerNames = Object.keys(stats);
+    
+            // 🎨 グラフ用データの作成
+            const playerNames = Array.from(allPlayers);
             const datasets = playerNames.map(player => {
                 return {
                     label: player,
                     data: rankHistory.map(entry => {
-                        const playerRank = entry.find(p => p.player === player)?.rank || null;
-                        return playerRank;
+                        // 初登場日より前は null（グラフに表示しない）
+                        if (new Date(entry[0]?.date) < new Date(firstAppearance[player])) return null;
+                        return entry.find(p => p.player === player)?.rank || null;
                     }),
                     fill: false,
                     borderColor: `hsl(${Math.random() * 360}, 70%, 50%)`,
                     tension: 0.1,
                 };
             });
-
+    
             setRankChartData({
                 labels: dates,
                 datasets,
             });
         }
-
+    
         fetchRecords();
     }, []);
+    
+    
 
     return (
         <div className="all-results-page">
